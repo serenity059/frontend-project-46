@@ -1,0 +1,26 @@
+{
+  "name": "@hexlet/code",
+  "version": "1.0.0",
+  "description": "[![Actions Status](https://github.com/serenity059/frontend-project-46/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/serenity059/frontend-project-46/actions)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/serenity059/frontend-project-46.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/serenity059/frontend-project-46/issues"
+  },
+  "homepage": "https://github.com/serenity059/frontend-project-46#readme",
+  "dependencies": {
+    "commander": "^12.1.0"
+  },
+  "bin": {
+    "gendiff": "./bin/gendiff.js"
+  }
+}
