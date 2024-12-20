@@ -1,8 +1,9 @@
 {
+  "type": "module",
   "name": "@hexlet/code",
   "version": "1.0.0",
   "description": "[![Actions Status](https://github.com/serenity059/frontend-project-46/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/serenity059/frontend-project-46/actions)",
-  "main": "index.js",
+  "main": "gendiff.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
