@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import parseFile from '../src/parsers.js';
+import parseFile from '../src/index.js';
 
 const program = new Command();
 
@@ -12,11 +12,7 @@ program
   .arguments('<filepath1> <filepath2>')
   .helpOption('-h, --help', 'output usage information')
   .action((filepath1, filepath2) => {
-    const file1Data = parseFile(filepath1);
-    const file2Data = parseFile(filepath2);
-
-    console.log('Parsed data from first file:', file1Data);
-    console.log('Parsed data from second file:', file2Data);
+    const difference = parseFile(filepath1, filepath2)
   });
 
 program.parse(process.argv);
