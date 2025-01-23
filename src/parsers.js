@@ -1,6 +1,8 @@
+import yaml from "js-yaml";
+
 const parsers = {
   json: JSON.parse,
-  // yml: ??????
+  yml: yaml.load,
 };
 
 const getParsedContent = (fileData, extension) => parsers[extension](fileData);

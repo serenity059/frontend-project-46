@@ -22,7 +22,9 @@
   "homepage": "https://github.com/serenity059/frontend-project-46#readme",
   "dependencies": {
     "commander": "^12.1.0",
-    "lodash": "^4.17.21"
+    "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21",
+    "yaml": "^2.7.0"
   },
   "bin": {
     "gendiff": "./bin/gendiff.js"
