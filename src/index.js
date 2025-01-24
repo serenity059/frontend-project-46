@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import buildDiff from './compare.js';
 import parse from './parsers.js';
+import format from './formatters/index.js';
 
 const getFileExtension = (filePath) => path.extname(filePath).slice(1);
 
