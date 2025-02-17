@@ -1,37 +1,26 @@
-import { fileURLToPath } from 'url';
-import path from 'path';
 import fs from 'fs';
-import genDiff from '../src/index.js';
+import gendiff from '../src/index.js';
 
-const filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(filename);
+let resultStylish; // eslint-disable-line
+let resultPlain; // eslint-disable-line
 
-const getFixturePath = (filename) => path.join(__dirname, '../__fixtures__', filename);
-const readFixture = (filename) => fs.readFileSync(getFixturePath(filename), 'utf-8').trim();
-
-test('gendiff JSON stylish format', () => {
-  const filePath1 = getFixturePath('file1.json');
-  const filePath2 = getFixturePath('file2.json');
-  const expectedOutput = readFixture('expected.txt');
-
-  const result = genDiff(filePath1, filePath2);
-  expect(result.trim()).toEqual(expectedOutput.trim());
+beforeAll(() => {
+  resultStylish = fs.readFileSync('./__fixtures__/resultStylish.txt'); // eslint-disable-line
+  resultPlain = fs.readFileSync('./__fixtures__/resultPlain.txt'); // eslint-disable-line
 });
 
-test('gendiff YAML stylish format', () => {
-  const filePath1 = getFixturePath('file1.yaml');
-  const filePath2 = getFixturePath('file2.yaml');
-  const expectedOutput = readFixture('expected.txt');
+describe('get different from two files', () => {
+  test.each([
+    ['yml'],
+    ['json'],
 
-  const result = genDiff(filePath1, filePath2);
-  expect(result.trim()).toEqual(expectedOutput.trim());
-});
-
-test('gendiff JSON plain format', () => {
-  const filePath1 = getFixturePath('file1.json');
-  const filePath2 = getFixturePath('file2.json');
-  const expectedOutput = readFixture('expected_plain.txt');
-
-  const result = genDiff(filePath1, filePath2, 'plain');
-  expect(result.trim()).toEqual(expectedOutput.trim());
+  ])('files format - %p', (extension) => {
+    const fileOneFullPath = `${process.cwd()}/__fixtures__/file1.${extension}`;
+    console.log('fileOneFullPath: ', fileOneFullPath);
+    const FileTwoFullPath = `${process.cwd()}/__fixtures__/file2.${extension}`;
+    console.log('FileTwoFullPath: ', FileTwoFullPath);
+    expect(gendiff(fileOneFullPath, FileTwoFullPath, 'stylish')).toEqual(resultStylish.toString());
+    expect(gendiff(fileOneFullPath, FileTwoFullPath, 'plain')).toEqual(resultPlain.toString());
+    expect(gendiff(fileOneFullPath, FileTwoFullPath)).toEqual(resultStylish.toString());
+  });
 });

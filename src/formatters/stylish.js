@@ -1,36 +1,55 @@
 import _ from 'lodash';
 
-const getIndent = (depth, spacesCount = 4) => ' '.repeat(depth * spacesCount - 2);
-const getBracketIndent = (depth, spacesCount = 4) => ' '.repeat((depth - 1) * spacesCount);
+const makeIndent = (depth = 0, marker = null) => {
+  const indentStep = 4;
+  const actualIndent = ' '.repeat(depth * indentStep);
+  return marker === null ? actualIndent : `${actualIndent.slice(2)}${marker} `;
+};
 
-const formatValue = (value, depth) => {
-  if (!_.isObject(value)) {
-    return String(value);;
+const formatValue = (values, depth) => {
+  if (_.isObject(values)) {
+    const objectIndent = makeIndent(depth + 1);
+    const objectContent = Object.entries(values)
+      .map(([key, value]) => `${objectIndent}${key}: ${formatValue(value, depth + 1)}`)
+      .join('\n');
+    return `{\n${objectContent}\n${makeIndent(depth)}}`;
   }
-  const lines = Object.entries(value).map(
-    ([key, val]) => `${getIndent(depth + 1)}  ${key}: ${formatValue(val, depth + 1)}`
-  );
-  return `{\n${lines.join('\n')}\n${getBracketIndent(depth + 1)}}`;
+  return `${values}`;
 };
 
-const stylish = (diffTree, depth = 1) => {
-  const lines = diffTree.map(({key, type, value, oldValue, newValue, children}) =>{
-    switch (type) {
-      case 'added':
-        return `${getIndent(depth)}+ ${key}: ${formatValue(value, depth)}`;
-      case 'removed':
-        return `${getIndent(depth)}- ${key}: ${formatValue(value, depth)}`;
-      case 'unchanged':
-        return `${getIndent(depth)}  ${key}: ${formatValue(value, depth)}`;
-      case 'changed':
-        return `${getIndent(depth)}- ${key}: ${formatValue(oldValue, depth)}\n${getIndent(depth)}+ ${key}: ${formatValue(newValue, depth)}`;
-      case 'nested':
-        return `${getIndent(depth)}  ${key}: {\n${stylish(children, depth + 1)}\n${getBracketIndent(depth + 1)}}`;
-      default:
-        throw new Error(`Incorrect type: ${type}`);
+const renderStylish = (content) => {
+  const iter = (node, depth) => {
+    if (node.state === 'added') {
+      const indent = makeIndent(depth, '+');
+      const formattedValue = formatValue(node.value, depth);
+      return `${indent}${node.key}: ${formattedValue}`;
     }
-  });
-  return lines.join('\n');
+    if (node.state === 'deleted') {
+      const indent = makeIndent(depth, '-');
+      const formattedValue = formatValue(node.value, depth);
+      return `${indent}${node.key}: ${formattedValue}`;
+    }
+    if (node.state === 'unchanged') {
+      const indent = makeIndent(depth);
+      const formattedValue = formatValue(node.value, depth);
+      return `${indent}${node.key}: ${formattedValue}`;
+    }
+    if (node.state === 'changed') {
+      const deleteIndent = makeIndent(depth, '-');
+      const addedIndent = makeIndent(depth, '+');
+      const formattedNewValue = formatValue(node.newValue, depth);
+      const formattedOldValue = formatValue(node.oldValue, depth);
+      return [
+        `${deleteIndent}${node.key}: ${formattedOldValue}`,
+        `${addedIndent}${node.key}: ${formattedNewValue}`,
+      ];
+    }
+    const indent = makeIndent(depth);
+    const innerTree = node.children.flatMap((children) => iter(children, depth + 1)).join('\n');
+    return `${indent}${node.key}: {\n${innerTree}\n${indent}}`;
+  };
+  const tree = content.flatMap((node) => iter(node, 1)).join('\n');
+  return `{\n${tree}\n${makeIndent()}}`;
 };
 
-export default (diffTree) => `{\n${stylish(diffTree)}\n}`;
+export default renderStylish;

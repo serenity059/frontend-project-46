@@ -1,7 +1,8 @@
-import _ from 'lodash';
-
 const formatValue = (value) => {
-  if (_.isObject(value)) {
+  if (value == null) {
+    return String(null);
+  }
+  if (typeof value === 'object') {
     return '[complex value]';
   }
   if (typeof value === 'string') {
@@ -10,26 +11,27 @@ const formatValue = (value) => {
   return value;
 };
 
-const plain = (diffTree, parent = '') => {
-  const lines = diffTree.flatMap(({ key, type, value, oldValue, newValue, children }) => {
-    const property = parent ? `${parent}.${key}` : key;
-    switch (type) {
-      case 'added':
-        return `Property '${property}' was added with value: ${formatValue(value)}`;
-      case 'removed':
-        return `Property '${property}' was removed`;
-      case 'changed':
-        return `Property '${property}' was updated. From ${formatValue(oldValue)} to ${formatValue(newValue)}`;
-      case 'nested':
-        return plain(children, property);
-      case 'unchanged':
-        return [];
-      default:
-        throw new Error(`Unknown type: ${type}`);
+const renderPlain = (content) => {
+  const iter = (node, ancestry) => {
+    const nestedPath = [...ancestry, node.key];
+    const path = nestedPath.join('.');
+    if (node.state === 'added') {
+      return `Property '${path}' was added with value: ${formatValue(node.value)}`;
     }
-  });
-
-  return lines.join('\n');
+    if (node.state === 'deleted') {
+      return `Property '${path}' was removed`;
+    }
+    if (node.state === 'changed') {
+      return `Property '${path}' was updated. From ${formatValue(node.oldValue)} to ${formatValue(node.newValue)}`;
+    }
+    if (node.state === 'unchanged') {
+      return [];
+    }
+    return node.children.flatMap((children) => iter(children, nestedPath));
+  };
+  return content
+    .flatMap((node) => iter(node, []))
+    .join('\n');
 };
 
-export default plain;
+export default renderPlain;
